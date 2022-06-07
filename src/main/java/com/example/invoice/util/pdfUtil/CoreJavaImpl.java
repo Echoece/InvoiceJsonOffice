@@ -129,13 +129,27 @@ public class CoreJavaImpl {
 
         // invoice total
         float startPosition = baseYPosition - (itemlistBaseY*baseLineGap);
-        writeText(contentStream, "Total:                   " + String.format("%,.2f",430000.00f),PDType1Font.HELVETICA, Color.black,11,400,startPosition,RenderingMode.FILL);
+        writeText(contentStream,"Sub Total:               "+ invoice.getSubtotal(),PDType1Font.HELVETICA,9,400,startPosition,RenderingMode.FILL);
+        writeText(contentStream, "Total:                       " + invoice.getTotal(),PDType1Font.HELVETICA,9,400,startPosition - (2*baseLineGap),RenderingMode.FILL);
+        writeText(contentStream, "Discount:                 "+invoice.getDiscount(),PDType1Font.HELVETICA, 9, 400,startPosition-(4*baseLineGap),RenderingMode.FILL);
+        writeText(contentStream, "Shipping Charge:   100.00",PDType1Font.HELVETICA, 9, 400,startPosition-(6*baseLineGap),RenderingMode.FILL);
 
-        contentStream.addRect(300,startPosition- (3*baseLineGap),300,25);
+        contentStream.addRect(300,startPosition- (9*baseLineGap),300,25);
         contentStream.setNonStrokingColor(Color.lightGray);
         contentStream.fill();
-        writeText(contentStream,"Balance Due:      "+ String.format("%,.2f",430000.00f),PDType1Font.HELVETICA, Color.black,11,400,startPosition - (3*baseLineGap)+7,RenderingMode.FILL);
+        writeText(contentStream,"Balance Due:          "+ String.format("%,.2f",430000.00f),PDType1Font.HELVETICA,Color.BLACK,9,400,startPosition - (9*baseLineGap)+9,RenderingMode.FILL);
 
+
+        // final note
+        writeText(contentStream,"Notes", PDType1Font.HELVETICA,10,55,startPosition - (14*baseLineGap),RenderingMode.FILL);
+        writeText(contentStream,"Thanks for your business", PDType1Font.HELVETICA,8,55,startPosition - (15*baseLineGap),RenderingMode.FILL);
+        writeText(contentStream,"Terms & Conditions", PDType1Font.HELVETICA,10,55,startPosition - (17*baseLineGap),RenderingMode.FILL);
+        writeText(contentStream,"Company is not responsible if the product is damaged during transportation", PDType1Font.HELVETICA,8,55,startPosition - (18*baseLineGap),RenderingMode.FILL);
+
+        // final line at the end of page
+        contentStream.moveTo(60, 30);
+        contentStream.lineTo(580,  30);
+        contentStream.stroke();
         System.out.println(page.getCropBox());
 
         contentStream.close();
