@@ -2,6 +2,7 @@ package com.example.invoice.util.pdfUtil;
 
 import com.example.invoice.util.jsonUtil.InvoiceFromJson;
 import com.example.invoice.util.jsonUtil.model.Invoice;
+import com.example.invoice.util.jsonUtil.model.InvoiceItems;
 import lombok.AllArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -15,9 +16,8 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 @AllArgsConstructor
 @Component
@@ -88,37 +88,47 @@ public class CoreJavaImpl {
         writeText(contentStream, "Rate",PDType1Font.HELVETICA, Color.white,10,470,baseYPosition - (22*baseLineGap)+7,RenderingMode.FILL);
         writeText(contentStream, "Amount",PDType1Font.HELVETICA, Color.white,10,540,baseYPosition - (22*baseLineGap)+7,RenderingMode.FILL);
 
-        AtomicInteger i= new AtomicInteger(1);
-        AtomicInteger itemlistBaseY = new AtomicInteger(23);
-        AtomicReference<Float> yPos = new AtomicReference<>((float) 0);
-        invoice.getInvoiceItems().forEach(
-                item -> {
-                    try {
-                        yPos.set(baseYPosition - (itemlistBaseY.get() * baseLineGap) - 10);
+        int i= 1;
+        int itemlistBaseY = 23;
+        Float yPos = 0f;
+        Iterator<InvoiceItems> itr =  invoice.getInvoiceItems().iterator();
+        while (itr.hasNext()){
+            InvoiceItems item = itr.next();
+            try {
+                yPos =baseYPosition - (itemlistBaseY * baseLineGap) - 10;
 
-                        writeText(contentStream, Integer.toString(i.get()),PDType1Font.HELVETICA, Color.black,9,60, yPos.get(),RenderingMode.FILL);
-                        writeText(contentStream, item.getProductName(),PDType1Font.HELVETICA_BOLD, Color.black,9,100, yPos.get(),RenderingMode.FILL);
-                        writeText(contentStream, item.getProductDescription(),PDType1Font.HELVETICA, Color.black,9,100, yPos.get()- 10,RenderingMode.FILL);
-                        writeText(contentStream, Long.toString(item.getQuantity()),PDType1Font.HELVETICA, Color.black,9,400, yPos.get(),RenderingMode.FILL);
-                        writeText(contentStream, "pcs",PDType1Font.HELVETICA, Color.black,9,400, yPos.get() -10,RenderingMode.FILL);
-                        writeText(contentStream, Long.toString(item.getUnitPrice()),PDType1Font.HELVETICA, Color.black,9,470, yPos.get(),RenderingMode.FILL);
-                        writeText(contentStream, Long.toString(item.getItemSubtotal()),PDType1Font.HELVETICA, Color.black,9,540, yPos.get(),RenderingMode.FILL);
+                writeText(contentStream, Integer.toString(i),PDType1Font.HELVETICA, Color.black,9,60, yPos,RenderingMode.FILL);
+                writeText(contentStream, item.getProductName(),PDType1Font.HELVETICA_BOLD, Color.black,9,100, yPos,RenderingMode.FILL);
+                writeText(contentStream, item.getProductDescription(),PDType1Font.HELVETICA, Color.black,9,100, yPos- 10,RenderingMode.FILL);
+                writeText(contentStream, Long.toString(item.getQuantity()),PDType1Font.HELVETICA, Color.black,9,400, yPos,RenderingMode.FILL);
+                writeText(contentStream, "pcs",PDType1Font.HELVETICA, Color.black,9,400, yPos -10,RenderingMode.FILL);
+                writeText(contentStream, Long.toString(item.getUnitPrice()),PDType1Font.HELVETICA, Color.black,9,470, yPos,RenderingMode.FILL);
+                writeText(contentStream, Long.toString(item.getItemSubtotal()),PDType1Font.HELVETICA, Color.black,9,540, yPos,RenderingMode.FILL);
 
-                        contentStream.moveTo(60, yPos.get() -15);
-                        contentStream.lineTo(580, yPos.get() -15);
-                        contentStream.stroke();
+                contentStream.moveTo(60, yPos-15);
+                contentStream.lineTo(580, yPos -15);
+                contentStream.stroke();
 
-                        i.getAndAdd(1);
-                        itemlistBaseY.getAndAdd(4);
+                i++;
+                itemlistBaseY+=4;
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                if(( baseYPosition - (itemlistBaseY*baseLineGap) - 10 ) < 15 ){
+                    PDPage nextPage = new PDPage();
+                    document.addPage(nextPage);
+                    contentStream.close();
+                    contentStream = new PDPageContentStream(document,nextPage);
+                    baseYPosition = nextPage.getCropBox().getHeight() -54;
+                    itemlistBaseY = 1;
                 }
-        );
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
 
         // invoice total
-        float startPosition = baseYPosition - (itemlistBaseY.get()*baseLineGap);
+        float startPosition = baseYPosition - (itemlistBaseY*baseLineGap);
         writeText(contentStream, "Total:                   " + String.format("%,.2f",430000.00f),PDType1Font.HELVETICA, Color.black,11,400,startPosition,RenderingMode.FILL);
 
         contentStream.addRect(300,startPosition- (3*baseLineGap),300,25);

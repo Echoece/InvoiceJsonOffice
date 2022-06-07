@@ -91,6 +91,346 @@
       "tax_codes": [
         "HST"
       ]
+    },
+    {
+      "id": 19,
+      "company_id": 14,
+      "income_account_id": 757,
+      "product_id": null,
+      "product_name": "Pen",
+      "product_description": "A new Pen",
+      "quantity": 1,
+      "unit_price": 85,
+      "discount_type": null,
+      "discount_amount": null,
+      "total_discount_amount": 0,
+      "item_subtotal": 85,
+      "item_total": 96.05,
+      "total_tax_amount": 11.05,
+      "owner_id": 14,
+      "created_by": 14,
+      "created": "2022-06-07T04:24:16Z",
+      "updated": "2022-06-07T04:24:16Z",
+      "taxed_invoice_items": [
+        {
+          "id": 17,
+          "tax_account": 755,
+          "tax_rate": 13,
+          "tax_code": "HST",
+          "tax_amount": 11.05,
+          "created": "2022-06-07T04:24:16Z",
+          "updated": "2022-06-07T04:24:16Z"
+        }
+      ],
+      "tax_codes": [
+        "HST"
+      ]
+    },
+    {
+      "id": 20,
+      "company_id": 14,
+      "income_account_id": 757,
+      "product_id": null,
+      "product_name": "Monitor",
+      "product_description": "Some monitor description here",
+      "quantity": 7,
+      "unit_price": 25000,
+      "discount_type": null,
+      "discount_amount": null,
+      "total_discount_amount": 0,
+      "item_subtotal": 175000,
+      "item_total": 197749.999,
+      "total_tax_amount": 22749.999,
+      "owner_id": 14,
+      "created_by": 14,
+      "created": "2022-06-07T04:25:01Z",
+      "updated": "2022-06-07T04:25:01Z",
+      "taxed_invoice_items": [
+        {
+          "id": 19,
+          "tax_account": 755,
+          "tax_rate": 13,
+          "tax_code": "HST",
+          "tax_amount": 22749.999,
+          "created": "2022-06-07T04:25:00Z",
+          "updated": "2022-06-07T04:25:00Z"
+        }
+      ],
+      "tax_codes": [
+        "HST"
+      ]
+    },
+    {
+      "id": 21,
+      "company_id": 14,
+      "income_account_id": 757,
+      "product_id": null,
+      "product_name": "Pen",
+      "product_description": "A new Pen",
+      "quantity": 1,
+      "unit_price": 85,
+      "discount_type": null,
+      "discount_amount": null,
+      "total_discount_amount": 0,
+      "item_subtotal": 85,
+      "item_total": 96.05,
+      "total_tax_amount": 11.05,
+      "owner_id": 14,
+      "created_by": 14,
+      "created": "2022-06-07T04:24:16Z",
+      "updated": "2022-06-07T04:24:16Z",
+      "taxed_invoice_items": [
+        {
+          "id": 17,
+          "tax_account": 755,
+          "tax_rate": 13,
+          "tax_code": "HST",
+          "tax_amount": 11.05,
+          "created": "2022-06-07T04:24:16Z",
+          "updated": "2022-06-07T04:24:16Z"
+        }
+      ],
+      "tax_codes": [
+        "HST"
+      ]
+    },
+    {
+      "id": 22,
+      "company_id": 14,
+      "income_account_id": 757,
+      "product_id": null,
+      "product_name": "Monitor",
+      "product_description": "Some monitor description here",
+      "quantity": 7,
+      "unit_price": 25000,
+      "discount_type": null,
+      "discount_amount": null,
+      "total_discount_amount": 0,
+      "item_subtotal": 175000,
+      "item_total": 197749.999,
+      "total_tax_amount": 22749.999,
+      "owner_id": 14,
+      "created_by": 14,
+      "created": "2022-06-07T04:25:01Z",
+      "updated": "2022-06-07T04:25:01Z",
+      "taxed_invoice_items": [
+        {
+          "id": 19,
+          "tax_account": 755,
+          "tax_rate": 13,
+          "tax_code": "HST",
+          "tax_amount": 22749.999,
+          "created": "2022-06-07T04:25:00Z",
+          "updated": "2022-06-07T04:25:00Z"
+        }
+      ],
+      "tax_codes": [
+        "HST"
+      ]
+    },
+    {
+      "id": 23,
+      "company_id": 14,
+      "income_account_id": 757,
+      "product_id": null,
+      "product_name": "Pen",
+      "product_description": "A new Pen",
+      "quantity": 1,
+      "unit_price": 85,
+      "discount_type": null,
+      "discount_amount": null,
+      "total_discount_amount": 0,
+      "item_subtotal": 85,
+      "item_total": 96.05,
+      "total_tax_amount": 11.05,
+      "owner_id": 14,
+      "created_by": 14,
+      "created": "2022-06-07T04:24:16Z",
+      "updated": "2022-06-07T04:24:16Z",
+      "taxed_invoice_items": [
+        {
+          "id": 17,
+          "tax_account": 755,
+          "tax_rate": 13,
+          "tax_code": "HST",
+          "tax_amount": 11.05,
+          "created": "2022-06-07T04:24:16Z",
+          "updated": "2022-06-07T04:24:16Z"
+        }
+      ],
+      "tax_codes": [
+        "HST"
+      ]
+    },
+    {
+      "id": 24,
+      "company_id": 14,
+      "income_account_id": 757,
+      "product_id": null,
+      "product_name": "Monitor",
+      "product_description": "Some monitor description here",
+      "quantity": 7,
+      "unit_price": 25000,
+      "discount_type": null,
+      "discount_amount": null,
+      "total_discount_amount": 0,
+      "item_subtotal": 175000,
+      "item_total": 197749.999,
+      "total_tax_amount": 22749.999,
+      "owner_id": 14,
+      "created_by": 14,
+      "created": "2022-06-07T04:25:01Z",
+      "updated": "2022-06-07T04:25:01Z",
+      "taxed_invoice_items": [
+        {
+          "id": 19,
+          "tax_account": 755,
+          "tax_rate": 13,
+          "tax_code": "HST",
+          "tax_amount": 22749.999,
+          "created": "2022-06-07T04:25:00Z",
+          "updated": "2022-06-07T04:25:00Z"
+        }
+      ],
+      "tax_codes": [
+        "HST"
+      ]
+    },
+    {
+      "id": 25,
+      "company_id": 14,
+      "income_account_id": 757,
+      "product_id": null,
+      "product_name": "Pen",
+      "product_description": "A new Pen",
+      "quantity": 1,
+      "unit_price": 85,
+      "discount_type": null,
+      "discount_amount": null,
+      "total_discount_amount": 0,
+      "item_subtotal": 85,
+      "item_total": 96.05,
+      "total_tax_amount": 11.05,
+      "owner_id": 14,
+      "created_by": 14,
+      "created": "2022-06-07T04:24:16Z",
+      "updated": "2022-06-07T04:24:16Z",
+      "taxed_invoice_items": [
+        {
+          "id": 17,
+          "tax_account": 755,
+          "tax_rate": 13,
+          "tax_code": "HST",
+          "tax_amount": 11.05,
+          "created": "2022-06-07T04:24:16Z",
+          "updated": "2022-06-07T04:24:16Z"
+        }
+      ],
+      "tax_codes": [
+        "HST"
+      ]
+    },
+    {
+      "id": 26,
+      "company_id": 14,
+      "income_account_id": 757,
+      "product_id": null,
+      "product_name": "Monitor",
+      "product_description": "Some monitor description here",
+      "quantity": 7,
+      "unit_price": 25000,
+      "discount_type": null,
+      "discount_amount": null,
+      "total_discount_amount": 0,
+      "item_subtotal": 175000,
+      "item_total": 197749.999,
+      "total_tax_amount": 22749.999,
+      "owner_id": 14,
+      "created_by": 14,
+      "created": "2022-06-07T04:25:01Z",
+      "updated": "2022-06-07T04:25:01Z",
+      "taxed_invoice_items": [
+        {
+          "id": 19,
+          "tax_account": 755,
+          "tax_rate": 13,
+          "tax_code": "HST",
+          "tax_amount": 22749.999,
+          "created": "2022-06-07T04:25:00Z",
+          "updated": "2022-06-07T04:25:00Z"
+        }
+      ],
+      "tax_codes": [
+        "HST"
+      ]
+    },
+    {
+      "id": 27,
+      "company_id": 14,
+      "income_account_id": 757,
+      "product_id": null,
+      "product_name": "Pen",
+      "product_description": "A new Pen",
+      "quantity": 1,
+      "unit_price": 85,
+      "discount_type": null,
+      "discount_amount": null,
+      "total_discount_amount": 0,
+      "item_subtotal": 85,
+      "item_total": 96.05,
+      "total_tax_amount": 11.05,
+      "owner_id": 14,
+      "created_by": 14,
+      "created": "2022-06-07T04:24:16Z",
+      "updated": "2022-06-07T04:24:16Z",
+      "taxed_invoice_items": [
+        {
+          "id": 17,
+          "tax_account": 755,
+          "tax_rate": 13,
+          "tax_code": "HST",
+          "tax_amount": 11.05,
+          "created": "2022-06-07T04:24:16Z",
+          "updated": "2022-06-07T04:24:16Z"
+        }
+      ],
+      "tax_codes": [
+        "HST"
+      ]
+    },
+    {
+      "id": 28,
+      "company_id": 14,
+      "income_account_id": 757,
+      "product_id": null,
+      "product_name": "Monitor",
+      "product_description": "Some monitor description here",
+      "quantity": 7,
+      "unit_price": 25000,
+      "discount_type": null,
+      "discount_amount": null,
+      "total_discount_amount": 0,
+      "item_subtotal": 175000,
+      "item_total": 197749.999,
+      "total_tax_amount": 22749.999,
+      "owner_id": 14,
+      "created_by": 14,
+      "created": "2022-06-07T04:25:01Z",
+      "updated": "2022-06-07T04:25:01Z",
+      "taxed_invoice_items": [
+        {
+          "id": 19,
+          "tax_account": 755,
+          "tax_rate": 13,
+          "tax_code": "HST",
+          "tax_amount": 22749.999,
+          "created": "2022-06-07T04:25:00Z",
+          "updated": "2022-06-07T04:25:00Z"
+        }
+      ],
+      "tax_codes": [
+        "HST"
+      ]
     }
   ],
   "invoice_notes": [],
