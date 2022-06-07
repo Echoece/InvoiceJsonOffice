@@ -9,18 +9,18 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.state.RenderingMode;
+import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 @AllArgsConstructor
+@Component
 public class CoreJavaImpl {
     private InvoiceFromJson invoiceFromJson;
 
@@ -101,8 +101,8 @@ public class CoreJavaImpl {
                         writeText(contentStream, item.getProductDescription(),PDType1Font.HELVETICA, Color.black,9,100, yPos.get()- 10,RenderingMode.FILL);
                         writeText(contentStream, Long.toString(item.getQuantity()),PDType1Font.HELVETICA, Color.black,9,400, yPos.get(),RenderingMode.FILL);
                         writeText(contentStream, "pcs",PDType1Font.HELVETICA, Color.black,9,400, yPos.get() -10,RenderingMode.FILL);
-                        writeText(contentStream, String.format("%,.2f",item.getUnitPrice()),PDType1Font.HELVETICA, Color.black,9,470, yPos.get(),RenderingMode.FILL);
-                        writeText(contentStream, String.format("%,.2f",item.getItemSubtotal()),PDType1Font.HELVETICA, Color.black,9,540, yPos.get(),RenderingMode.FILL);
+                        writeText(contentStream, Long.toString(item.getUnitPrice()),PDType1Font.HELVETICA, Color.black,9,470, yPos.get(),RenderingMode.FILL);
+                        writeText(contentStream, Long.toString(item.getItemSubtotal()),PDType1Font.HELVETICA, Color.black,9,540, yPos.get(),RenderingMode.FILL);
 
                         contentStream.moveTo(60, yPos.get() -15);
                         contentStream.lineTo(580, yPos.get() -15);
@@ -153,20 +153,21 @@ public class CoreJavaImpl {
         contentStream.endText();
     }
 
-    static List<String> formattedAddress(String invoice){
+    static List<String> formattedAddress(String adressToFormat){
         // split the adress into words -> add them back into a List of strings, each string in the list will
         // have width of less than 40.
         List<String> lines = new ArrayList<>();
 
-        String[] address = invoice.split(" ");
-        int addressWidth = 40; // to limit the address per line
+        String[] address = adressToFormat.split(" ");
+        int addressWidth = 30; // to limit the address per line
         int tempLength=0;
         String tempString = "";
 
         for(String word: address){
             tempLength = tempLength + word.length();
             if(tempLength <= addressWidth){
-                tempString = tempString + word;
+                tempLength += word.length();
+                tempString = tempString + word +" ";
             }
             else {
                 lines.add(tempString);
@@ -177,6 +178,7 @@ public class CoreJavaImpl {
 
         return lines;
     }
+
     static float getTextWidth(PDType1Font font, int fontSize, String text) throws IOException {
         return (font.getStringWidth(text) / 1000.0f) * fontSize;
     }
