@@ -1,0 +1,51 @@
+Information needed:
+
+/-------------------------------------------------------------------------/
+Top left:
+1. 
+name? = not sure, invoice_title?
+company Id = customer.companyId  (integer)
+Tax Id = not sure yet, 
+		Invoice entity has List<InvoiceItems> 
+			Invoiceitems has List<InvoiceItemTax> 
+				InvoiceItemTax has the taxcode and taxid (im assuming taxcode is the value i want? but it can have different type of tax, so it is not clear)                          
+adress = is not clear, Invoice has -> billing address, shipping address. these are probably the ones i need,
+			if not, then a customer has addresses and contacts. billing and shipping boolean in customer contact marks which is what.
+
+2. 
+Bill to:
+name : Invoice.customer.name
+adress = same as above.
+
+
+Top right:
+1.
+Invoice # = Invoice.invoiceNo (string)
+Balance Due = Invoice.dues (double)
+
+2.
+Invoice Date: 23 May 2022 format , Invoice.invoiceData
+Terms : not sure either, for now keeping it in the json field. need to confirm and fix
+Due date: same as above. Invoice.dueDate
+
+/--------------------------------------------------------------------/
+
+sub: Invoice of purchasing {seems first item on the Invoice.InvoiceItem.productName}
+				Note: what about mutliple products? maybe can append text something like "and other products" at the end
+
+
+2. item details list :
+invoice.Invoiceitem. -> productDescription, productName, quantity, unitPrice, itemSubtotal
+
+3. summary:
+subtotal : Invoice.subtotal
+discount : Invoice.discount  . Note: maybe add a check if discount > 0 , only then print it.
+shipping addredss: not sure where is this coming from, i couldnt find it from ERD diagram so far.
+list of taxes : from the image it looks like we need a groupby tax type and sum them up. Each InvoiceItems can have many tax types it seems from ERD.
+				for now i will use a hardcoded json value.
+
+total: Invoice.total
+Balance Dues: Invoice.dues
+
+
+
