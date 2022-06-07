@@ -112,7 +112,7 @@ public class CoreJavaImpl {
                 i++;
                 itemlistBaseY+=4;
 
-                if(( baseYPosition - (itemlistBaseY*baseLineGap) - 10 ) < 15 ){
+                if(( baseYPosition - (itemlistBaseY*baseLineGap) - 10 ) < 50 ){
                     PDPage nextPage = new PDPage();
                     document.addPage(nextPage);
                     contentStream.close();
