@@ -36,15 +36,15 @@ public class CoreJavaImpl {
 
         float baseYPosition = page.getCropBox().getHeight()-54;
         int baseLineGap= 11;
-        int tempMultiplier =3;
-        
+
+
         // customer details (top-left side)
         writeText(contentStream,"BDX", PDType1Font.HELVETICA_BOLD,12, 55,baseYPosition , RenderingMode.FILL);
         writeText(contentStream, "Company ID : "+ invoice.getCustomer().getCompanyId(),PDType1Font.HELVETICA,9, 55, baseYPosition-baseLineGap,RenderingMode.FILL);
         writeText(contentStream, "Tax ID : 986432",PDType1Font.HELVETICA,9, 55, baseYPosition- (2*baseLineGap),RenderingMode.FILL);
 
-        List<String> addressLines = formattedAddress(invoice);
-
+        List<String> addressLines = formattedAddress(invoice.getShippingAddress());
+        int tempMultiplier =3;
         for (String line : addressLines){
             writeText(contentStream, line, PDType1Font.HELVETICA, 9,55, baseYPosition-(tempMultiplier*baseLineGap),RenderingMode.FILL);
             tempMultiplier++;
@@ -52,30 +52,31 @@ public class CoreJavaImpl {
 
         // Invoice details (top-right side)
         writeText(contentStream,"INVOICE",PDType1Font.HELVETICA, 24,450, baseYPosition, RenderingMode.FILL);
-        String invoiceNumber = "000001"; // issue with leading zero while parsing string
-        writeText(contentStream, "# INV-" + invoiceNumber, PDType1Font.HELVETICA, 10,450, baseYPosition-(2*baseLineGap), RenderingMode.FILL);
+        writeText(contentStream, "# INV-" + invoice.getInvoiceNo(), PDType1Font.HELVETICA, 10,450, baseYPosition-(2*baseLineGap), RenderingMode.FILL);
 
         writeText(contentStream, "Balance Due", PDType1Font.HELVETICA_BOLD, 8,450, baseYPosition-(5*baseLineGap), RenderingMode.FILL);
-        String currency = "BDT ";
-        Float amount =47530.00f;
-        writeText(contentStream, currency+String.format("%,.2f", amount), PDType1Font.HELVETICA_BOLD, 12,450, baseYPosition-(6*baseLineGap), RenderingMode.FILL);
+        writeText(contentStream, "BDT "+String.format("%,.2f", invoice.getTotal()), PDType1Font.HELVETICA_BOLD, 12,450, baseYPosition-(6*baseLineGap), RenderingMode.FILL);
 
         // Bill to (below the customer details on the top-left side)
         writeText(contentStream, "Bill To",PDType1Font.HELVETICA,11, 55,baseYPosition - (9*baseLineGap),RenderingMode.FILL);
         writeText(contentStream, "John Doe",PDType1Font.HELVETICA_BOLD,9, 55,baseYPosition - (10*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream, "19/2A Gulshan-2",PDType1Font.HELVETICA,9,55,baseYPosition - (11*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream, "Dhaka",PDType1Font.HELVETICA,9,55,baseYPosition - (12*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream, "1211 Dhaka bibhag",PDType1Font.HELVETICA,9,55,baseYPosition - (13*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream, "Bangladesh",PDType1Font.HELVETICA,9,55,baseYPosition - (14*baseLineGap),RenderingMode.FILL);
+
+        addressLines = formattedAddress(invoice.getBillingAddress());
+        tempMultiplier =11;
+        for (String line : addressLines){
+            writeText(contentStream, line, PDType1Font.HELVETICA, 9,55, baseYPosition-(tempMultiplier*baseLineGap),RenderingMode.FILL);
+            tempMultiplier++;
+        }
+
         //subject
         writeText(contentStream, "Subject :",PDType1Font.HELVETICA,9,55,baseYPosition - (18*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream, "Invoice of purchasing mobile",PDType1Font.HELVETICA,9,55,baseYPosition - (19*baseLineGap),RenderingMode.FILL);
-
+        String firstProductName =invoice.getInvoiceItems().stream().findFirst().get().getProductName();
+        writeText(contentStream, "Invoice of purchasing " + firstProductName,PDType1Font.HELVETICA,9,55,baseYPosition - (19*baseLineGap),RenderingMode.FILL);
 
         // invoice dates and terms (below invoice details on the top-right side)
-        writeText(contentStream, "Invoice Date :       " + LocalDate.now(),PDType1Font.HELVETICA,11,400,baseYPosition - (11*baseLineGap),RenderingMode.FILL);
+        writeText(contentStream, "Invoice Date :       " + invoice.getInvoiceDate(),PDType1Font.HELVETICA,11,400,baseYPosition - (11*baseLineGap),RenderingMode.FILL);
         writeText(contentStream, "Terms :                 " + "Due on Receipt",PDType1Font.HELVETICA,11,400,baseYPosition - (13*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream, "Due Date :            " + LocalDate.now(),PDType1Font.HELVETICA,11,400,baseYPosition - (15*baseLineGap),RenderingMode.FILL);
+        writeText(contentStream, "Due Date :            " + invoice.getInvoiceDueDate(),PDType1Font.HELVETICA,11,400,baseYPosition - (15*baseLineGap),RenderingMode.FILL);
 
         // invoice item menu header
         contentStream.addRect(55,baseYPosition-(22*baseLineGap),530,20);
@@ -152,12 +153,12 @@ public class CoreJavaImpl {
         contentStream.endText();
     }
 
-    static List<String> formattedAddress(Invoice invoice){
+    static List<String> formattedAddress(String invoice){
         // split the adress into words -> add them back into a List of strings, each string in the list will
         // have width of less than 40.
         List<String> lines = new ArrayList<>();
 
-        String[] address = invoice.getShippingAddress().split(" ");
+        String[] address = invoice.split(" ");
         int addressWidth = 40; // to limit the address per line
         int tempLength=0;
         String tempString = "";
