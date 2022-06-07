@@ -25,6 +25,7 @@ public class CoreJavaImpl {
     private InvoiceFromJson invoiceFromJson;
 
     public void create() throws IOException {
+        // initial setup for pdf and getting data from json file,
         Invoice invoice = invoiceFromJson.getInvoice(new File("src/main/resources/json/Invoice.json"));
         PDDocument document = new PDDocument();
 
@@ -127,8 +128,16 @@ public class CoreJavaImpl {
         }
 
 
+        // TODO: test logic for creating new page in case it overflows, for both the invoice details and the final notes logic is not tested
         // invoice total
         float startPosition = baseYPosition - (itemlistBaseY*baseLineGap);
+        if(startPosition < 100 ){
+            PDPage nextPage = new PDPage();
+            document.addPage(nextPage);
+            contentStream.close();
+            contentStream = new PDPageContentStream(document,nextPage);
+            startPosition = nextPage.getCropBox().getHeight()-54;
+        }
         writeText(contentStream,"Sub Total:               "+ invoice.getSubtotal(),PDType1Font.HELVETICA,9,400,startPosition,RenderingMode.FILL);
         writeText(contentStream, "Total:                       " + invoice.getTotal(),PDType1Font.HELVETICA,9,400,startPosition - (2*baseLineGap),RenderingMode.FILL);
         writeText(contentStream, "Discount:                 "+invoice.getDiscount(),PDType1Font.HELVETICA, 9, 400,startPosition-(4*baseLineGap),RenderingMode.FILL);
@@ -141,6 +150,13 @@ public class CoreJavaImpl {
 
 
         // final note
+        if(startPosition - (10*baseLineGap) < 60 ){
+            PDPage nextPage = new PDPage();
+            document.addPage(nextPage);
+            contentStream.close();
+            contentStream = new PDPageContentStream(document,nextPage);
+            startPosition = nextPage.getCropBox().getHeight()-54;
+        }
         writeText(contentStream,"Notes", PDType1Font.HELVETICA,10,55,startPosition - (14*baseLineGap),RenderingMode.FILL);
         writeText(contentStream,"Thanks for your business", PDType1Font.HELVETICA,8,55,startPosition - (15*baseLineGap),RenderingMode.FILL);
         writeText(contentStream,"Terms & Conditions", PDType1Font.HELVETICA,10,55,startPosition - (17*baseLineGap),RenderingMode.FILL);
