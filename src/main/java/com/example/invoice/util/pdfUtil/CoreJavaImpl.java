@@ -40,9 +40,11 @@ public class CoreJavaImpl {
 
 
         // customer details (top-left side)
+        // TODO: need to clarify BDX and Tax ID field, where it is coming from?
         writeText(contentStream,"BDX", PDType1Font.HELVETICA_BOLD,12, 55,baseYPosition , RenderingMode.FILL);
         writeText(contentStream, "Company ID : "+ invoice.getCustomer().getCompanyId(),PDType1Font.HELVETICA,9, 55, baseYPosition-baseLineGap,RenderingMode.FILL);
         writeText(contentStream, "Tax ID : 986432",PDType1Font.HELVETICA,9, 55, baseYPosition- (2*baseLineGap),RenderingMode.FILL);
+
 
         List<String> addressLines = formattedAddress(invoice.getShippingAddress());
         int tempMultiplier =3;
@@ -56,7 +58,7 @@ public class CoreJavaImpl {
         writeText(contentStream, "# INV-" + invoice.getInvoiceNo(), PDType1Font.HELVETICA, 10,450, baseYPosition-(2*baseLineGap), RenderingMode.FILL);
 
         writeText(contentStream, "Balance Due", PDType1Font.HELVETICA_BOLD, 8,450, baseYPosition-(5*baseLineGap), RenderingMode.FILL);
-        writeText(contentStream, "BDT "+String.format("%,.2f", invoice.getTotal()), PDType1Font.HELVETICA_BOLD, 12,450, baseYPosition-(6*baseLineGap), RenderingMode.FILL);
+        writeText(contentStream, "BDT "+ invoice.getTotal(), PDType1Font.HELVETICA_BOLD, 12,450, baseYPosition-(7*baseLineGap), RenderingMode.FILL);
 
         // Bill to (below the customer details on the top-left side)
         writeText(contentStream, "Bill To",PDType1Font.HELVETICA,11, 55,baseYPosition - (9*baseLineGap),RenderingMode.FILL);
@@ -71,7 +73,8 @@ public class CoreJavaImpl {
 
         //subject
         writeText(contentStream, "Subject :",PDType1Font.HELVETICA,9,55,baseYPosition - (18*baseLineGap),RenderingMode.FILL);
-        String firstProductName =invoice.getInvoiceItems().stream().findFirst().get().getProductName();
+        // TODO: need to clarify about the requirements of the subject in case multiple items
+        String firstProductName =invoice.getInvoiceItems().stream().findFirst().orElseThrow().getProductName();
         writeText(contentStream, "Invoice of purchasing " + firstProductName,PDType1Font.HELVETICA,9,55,baseYPosition - (19*baseLineGap),RenderingMode.FILL);
 
         // invoice dates and terms (below invoice details on the top-right side)
@@ -88,12 +91,12 @@ public class CoreJavaImpl {
         writeText(contentStream, "Qty",PDType1Font.HELVETICA, Color.white,10,400,baseYPosition - (22*baseLineGap)+7,RenderingMode.FILL);
         writeText(contentStream, "Rate",PDType1Font.HELVETICA, Color.white,10,470,baseYPosition - (22*baseLineGap)+7,RenderingMode.FILL);
         writeText(contentStream, "Amount",PDType1Font.HELVETICA, Color.white,10,540,baseYPosition - (22*baseLineGap)+7,RenderingMode.FILL);
-
+        // invoice items iteration,
         int i= 1;
         int itemlistBaseY = 23;
         Float yPos = 0f;
         Iterator<InvoiceItems> itr =  invoice.getInvoiceItems().iterator();
-        while (itr.hasNext()){
+        while (itr.hasNext() ){
             InvoiceItems item = itr.next();
             try {
                 yPos =baseYPosition - (itemlistBaseY * baseLineGap) - 10;
@@ -124,11 +127,8 @@ public class CoreJavaImpl {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
-
-        // TODO: test logic for creating new page in case it overflows, for both the invoice details and the final notes logic is not tested
         // invoice total
         float startPosition = baseYPosition - (itemlistBaseY*baseLineGap);
         if(startPosition < 100 ){
@@ -150,7 +150,7 @@ public class CoreJavaImpl {
 
 
         // final note
-        if(startPosition - (10*baseLineGap) < 60 ){
+        if(startPosition - (10*baseLineGap) < 120 ){
             PDPage nextPage = new PDPage();
             document.addPage(nextPage);
             contentStream.close();
@@ -173,7 +173,7 @@ public class CoreJavaImpl {
         document.close();
     }
 
-    static void writeText(PDPageContentStream contentStream, String text, PDFont font,
+    private static void writeText(PDPageContentStream contentStream, String text, PDFont font,
                           int size, float xPos, float yPos, RenderingMode renderMode) throws IOException {
         contentStream.beginText();
         contentStream.setFont(font, size);
@@ -182,7 +182,7 @@ public class CoreJavaImpl {
         contentStream.showText(text);
         contentStream.endText();
     }
-    static void writeText(PDPageContentStream contentStream, String text, PDFont font, Color color,
+    private static void writeText(PDPageContentStream contentStream, String text, PDFont font, Color color,
                           int size, float xPos, float yPos, RenderingMode renderMode) throws IOException {
         contentStream.beginText();
         contentStream.setFont(font, size);
@@ -193,9 +193,8 @@ public class CoreJavaImpl {
         contentStream.endText();
     }
 
-    static List<String> formattedAddress(String adressToFormat){
-        // split the adress into words -> add them back into a List of strings, each string in the list will
-        // have width of less than 40.
+    private static List<String> formattedAddress(String adressToFormat){
+        // addressToFormat the address into words -> add them back into a List of strings, each string in the list will represent a line having width of less than 30.
         List<String> lines = new ArrayList<>();
 
         String[] address = adressToFormat.split(" ");
@@ -219,7 +218,7 @@ public class CoreJavaImpl {
         return lines;
     }
 
-    static float getTextWidth(PDType1Font font, int fontSize, String text) throws IOException {
+    private static float getTextWidth(PDType1Font font, int fontSize, String text) throws IOException {
         return (font.getStringWidth(text) / 1000.0f) * fontSize;
     }
 }

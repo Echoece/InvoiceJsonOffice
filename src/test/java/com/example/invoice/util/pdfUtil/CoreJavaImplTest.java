@@ -33,7 +33,7 @@ class CoreJavaImplTest {
                 tempString="";
             }
         }
-        lines.forEach(element-> System.out.println(element));
+        lines.forEach(System.out::println);
     }
 
     @Test
