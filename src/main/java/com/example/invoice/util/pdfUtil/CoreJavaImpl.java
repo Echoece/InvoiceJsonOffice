@@ -9,11 +9,6 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
-import org.apache.pdfbox.pdmodel.graphics.state.RenderingMode;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
@@ -31,6 +26,7 @@ public class CoreJavaImpl {
     public void create() throws IOException {
         // initial setup for pdf and getting data from json file,
         Invoice invoice = invoiceFromJson.getInvoice(new File("src/main/resources/json/Invoice.json"));
+
 
         PDDocument document = new PDDocument();
         PDType0Font roboto = PDType0Font.load(document,new File("src/main/resources/fonts/roboto/Roboto-Light.ttf"));
@@ -108,88 +104,92 @@ public class CoreJavaImpl {
         writeText(contentStream, "Rate",roboto, Color.white,10,470,baseYPosition - (22*baseLineGap)+9);
         writeText(contentStream, "Amount",roboto, Color.white,10,540,baseYPosition - (22*baseLineGap)+9);
 
-        // invoice items iteration,
-        // TODO: need to check for null pointer exception for invoiceItems
-        int i= 1;
-        int itemlistBaseY = 23;
-        Iterator<InvoiceItems> itr =  invoice.getInvoiceItems().iterator();
+        contentStream.setNonStrokingColor(Color.BLACK);
+        float startPosition = baseYPosition - (23*baseLineGap);
+        if(invoice.getInvoiceItems()!= null && invoice.getInvoiceItems().size()>0){
+            // invoice items iteration,
+            // TODO: need to check for null pointer exception for invoiceItems
+            int i= 1;
+            int itemlistBaseY = 23;
+            Iterator<InvoiceItems> itr =  invoice.getInvoiceItems().iterator();
 
 
-        int rateEndXOffset = 490;
-        int amountEndXOffset = 574;
-        int quantityEndXOffset = 415;
+            int rateEndXOffset = 490;
+            int amountEndXOffset = 574;
+            int quantityEndXOffset = 415;
 
-        while (itr.hasNext() && i<7){
-            InvoiceItems item = itr.next();
-            try {
-                Float yPos =baseYPosition - (itemlistBaseY * baseLineGap) - 10;
+            while (itr.hasNext() && i<7){
+                InvoiceItems item = itr.next();
+                try {
+                    Float yPos =baseYPosition - (itemlistBaseY * baseLineGap) - 10;
 
-                writeText(contentStream, Integer.toString(i),roboto, Color.black,9,60, yPos);
-                writeText(contentStream, item.getProductName(),roboto_BOLD, Color.black,9,100, yPos+5);
-                // TODO: make a check for product description for being too long, i can probably trim it or just add more space.
-                //  It can overflow for too long text
-                writeText(contentStream, item.getProductDescription(),roboto, Color.black,9,100, yPos- 5);
-                writeText(contentStream, Long.toString(item.getQuantity()),roboto, Color.black,9,getXOffsetForRightAlignedText(roboto,9,Long.toString(item.getQuantity()), quantityEndXOffset), yPos+5);
-                writeText(contentStream, "pcs",roboto, Color.black,9,400, yPos -5);
-                writeText(contentStream, Long.toString(item.getUnitPrice()),roboto, Color.black,9,getXOffsetForRightAlignedText(roboto,9,Long.toString(item.getUnitPrice()),rateEndXOffset), yPos);
-                writeText(contentStream, Long.toString(item.getItemSubtotal()),roboto, Color.black,9,getXOffsetForRightAlignedText(roboto,9,Long.toString(item.getItemSubtotal()),amountEndXOffset), yPos);
+                    writeText(contentStream, Integer.toString(i),roboto, Color.black,9,60, yPos);
+                    writeText(contentStream, item.getProductName(),roboto_BOLD, Color.black,9,100, yPos+5);
+                    // TODO: make a check for product description for being too long, i can probably trim it or just add more space.
+                    //  It can overflow for too long text
+                    writeText(contentStream, item.getProductDescription(),roboto, Color.black,9,100, yPos- 5);
+                    writeText(contentStream, Long.toString(item.getQuantity()),roboto, Color.black,9,getXOffsetForRightAlignedText(roboto,9,Long.toString(item.getQuantity()), quantityEndXOffset), yPos+5);
+                    writeText(contentStream, "pcs",roboto, Color.black,9,400, yPos -5);
+                    writeText(contentStream, Long.toString(item.getUnitPrice()),roboto, Color.black,9,getXOffsetForRightAlignedText(roboto,9,Long.toString(item.getUnitPrice()),rateEndXOffset), yPos);
+                    writeText(contentStream, Long.toString(item.getItemSubtotal()),roboto, Color.black,9,getXOffsetForRightAlignedText(roboto,9,Long.toString(item.getItemSubtotal()),amountEndXOffset), yPos);
 
-                contentStream.moveTo(60, yPos-15);
-                contentStream.lineTo(580, yPos -15);
-                contentStream.setStrokingColor(150/255f,150/255f,150/255f);
-                contentStream.stroke();
+                    contentStream.moveTo(60, yPos-15);
+                    contentStream.lineTo(580, yPos -15);
+                    contentStream.setStrokingColor(150/255f,150/255f,150/255f);
+                    contentStream.stroke();
 
-                i++;
-                itemlistBaseY+=4;
+                    i++;
+                    itemlistBaseY+=4;
 
-                if(( baseYPosition - (itemlistBaseY*baseLineGap) - 10 ) < 50 ){
-                    PDPage nextPage = new PDPage();
-                    document.addPage(nextPage);
-                    contentStream.close();
-                    contentStream = new PDPageContentStream(document,nextPage);
-                    baseYPosition = nextPage.getCropBox().getHeight() -54;
-                    itemlistBaseY = 1;
+                    if(( baseYPosition - (itemlistBaseY*baseLineGap) - 10 ) < 50 ){
+                        PDPage nextPage = new PDPage();
+                        document.addPage(nextPage);
+                        contentStream.close();
+                        contentStream = new PDPageContentStream(document,nextPage);
+                        baseYPosition = nextPage.getCropBox().getHeight() -54;
+                        itemlistBaseY = 1;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+
+            /*----------------------------------------------------------------------------------------------------------------*/
+            // invoice total
+            startPosition = baseYPosition - (itemlistBaseY*baseLineGap)- 5;
+            int invoiceTotalEndXOffset = 470;
+            int invoiceTotalValueEndXOffset = amountEndXOffset;
+
+            if(startPosition < 100 ){
+                PDPage nextPage = new PDPage();
+                document.addPage(nextPage);
+                contentStream.close();
+                contentStream = new PDPageContentStream(document,nextPage);
+                startPosition = nextPage.getCropBox().getHeight()-54;
+            }
+
+            writeText(contentStream, "Sub Total",roboto,9,getXOffsetForRightAlignedText(roboto,9,"Sub Total",invoiceTotalEndXOffset),startPosition);
+            writeText(contentStream, String.valueOf(invoice.getSubtotal()),roboto,9,getXOffsetForRightAlignedText(roboto,9,String.valueOf(invoice.getSubtotal()),invoiceTotalValueEndXOffset),startPosition);
+
+            writeText(contentStream, "Shipping Charge" ,roboto,9,getXOffsetForRightAlignedText(roboto,9,"Shipping Charge",invoiceTotalEndXOffset),startPosition - (2*baseLineGap));
+            writeText(contentStream, "100.00",roboto,9,getXOffsetForRightAlignedText(roboto,9,"100.00",invoiceTotalValueEndXOffset),startPosition - (2*baseLineGap));
+
+            writeText(contentStream, "Tax (15%)" ,roboto,9,getXOffsetForRightAlignedText(roboto,9,"Tax (15%)",invoiceTotalEndXOffset),startPosition - (4*baseLineGap));
+            writeText(contentStream, String.valueOf(invoice.getTaxAmount()),roboto,9,getXOffsetForRightAlignedText(roboto,9,String.valueOf(invoice.getTaxAmount()),invoiceTotalValueEndXOffset),startPosition - (4*baseLineGap));
+
+            writeText(contentStream, "Discount",roboto, 9, getXOffsetForRightAlignedText(roboto,9,"Discount",invoiceTotalEndXOffset),startPosition-(6*baseLineGap));
+            writeText(contentStream, String.valueOf(invoice.getDiscount()),roboto, 9, getXOffsetForRightAlignedText(roboto,9,String.valueOf(invoice.getDiscount()),invoiceTotalValueEndXOffset),startPosition-(6*baseLineGap));
+
+            writeText(contentStream, "Total",roboto_BOLD, 9, getXOffsetForRightAlignedText(roboto_BOLD,9,"Total",invoiceTotalEndXOffset),startPosition-(8*baseLineGap));
+            writeText(contentStream, String.format("%,.2f",invoice.getTotal()),roboto_BOLD, 9, getXOffsetForRightAlignedText(roboto_BOLD,9,String.format("%,.2f",invoice.getTotal()),invoiceTotalValueEndXOffset),startPosition-(8*baseLineGap));
+
+            contentStream.addRect(295,startPosition- (11*baseLineGap),300,25);
+            contentStream.setNonStrokingColor(230/255f,230/255f,230/255f);
+            contentStream.fill();
+            writeText(contentStream,"Balance Due",roboto_BOLD,Color.BLACK,9,getXOffsetForRightAlignedText(roboto_BOLD,9,"Balance Due",invoiceTotalEndXOffset),startPosition - (11*baseLineGap)+9);
+            writeText(contentStream,String.format("%,.2f",invoice.getDues()),roboto_BOLD,Color.BLACK,9,getXOffsetForRightAlignedText(roboto_BOLD,9,String.format("%,.2f",invoice.getDues()),invoiceTotalValueEndXOffset),startPosition - (11*baseLineGap)+9);
         }
 
-        /*----------------------------------------------------------------------------------------------------------------*/
-        // invoice total
-        float startPosition = baseYPosition - (itemlistBaseY*baseLineGap)- 5;
-        int invoiceTotalEndXOffset = 470;
-        int invoiceTotalValueEndXOffset = amountEndXOffset;
-
-        if(startPosition < 100 ){
-            PDPage nextPage = new PDPage();
-            document.addPage(nextPage);
-            contentStream.close();
-            contentStream = new PDPageContentStream(document,nextPage);
-            startPosition = nextPage.getCropBox().getHeight()-54;
-        }
-
-        writeText(contentStream, "Sub Total",roboto,9,getXOffsetForRightAlignedText(roboto,9,"Sub Total",invoiceTotalEndXOffset),startPosition);
-        writeText(contentStream, String.valueOf(invoice.getSubtotal()),roboto,9,getXOffsetForRightAlignedText(roboto,9,String.valueOf(invoice.getSubtotal()),invoiceTotalValueEndXOffset),startPosition);
-
-        writeText(contentStream, "Shipping Charge" ,roboto,9,getXOffsetForRightAlignedText(roboto,9,"Shipping Charge",invoiceTotalEndXOffset),startPosition - (2*baseLineGap));
-        writeText(contentStream, "100.00",roboto,9,getXOffsetForRightAlignedText(roboto,9,"100.00",invoiceTotalValueEndXOffset),startPosition - (2*baseLineGap));
-
-        writeText(contentStream, "Tax (15%)" ,roboto,9,getXOffsetForRightAlignedText(roboto,9,"Tax (15%)",invoiceTotalEndXOffset),startPosition - (4*baseLineGap));
-        writeText(contentStream, String.valueOf(invoice.getTaxAmount()),roboto,9,getXOffsetForRightAlignedText(roboto,9,String.valueOf(invoice.getTaxAmount()),invoiceTotalValueEndXOffset),startPosition - (4*baseLineGap));
-
-        writeText(contentStream, "Discount",roboto, 9, getXOffsetForRightAlignedText(roboto,9,"Discount",invoiceTotalEndXOffset),startPosition-(6*baseLineGap));
-        writeText(contentStream, String.valueOf(invoice.getDiscount()),roboto, 9, getXOffsetForRightAlignedText(roboto,9,String.valueOf(invoice.getDiscount()),invoiceTotalValueEndXOffset),startPosition-(6*baseLineGap));
-
-        writeText(contentStream, "Total",roboto_BOLD, 9, getXOffsetForRightAlignedText(roboto_BOLD,9,"Total",invoiceTotalEndXOffset),startPosition-(8*baseLineGap));
-        writeText(contentStream, String.format("%,.2f",invoice.getTotal()),roboto_BOLD, 9, getXOffsetForRightAlignedText(roboto_BOLD,9,String.format("%,.2f",invoice.getTotal()),invoiceTotalValueEndXOffset),startPosition-(8*baseLineGap));
-
-
-        contentStream.addRect(295,startPosition- (11*baseLineGap),300,25);
-        contentStream.setNonStrokingColor(230/255f,230/255f,230/255f);
-        contentStream.fill();
-        writeText(contentStream,"Balance Due",roboto_BOLD,Color.BLACK,9,getXOffsetForRightAlignedText(roboto_BOLD,9,"Balance Due",invoiceTotalEndXOffset),startPosition - (11*baseLineGap)+9);
-        writeText(contentStream,String.format("%,.2f",invoice.getDues()),roboto_BOLD,Color.BLACK,9,getXOffsetForRightAlignedText(roboto_BOLD,9,String.format("%,.2f",invoice.getDues()),invoiceTotalValueEndXOffset),startPosition - (11*baseLineGap)+9);
 
         /*----------------------------------------------------------------------------------------------------------------*/
 

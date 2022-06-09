@@ -17,7 +17,7 @@ class CoreJavaImplTest {
     public void addressFormatTest(){
         List<String> lines = new ArrayList<>();
 
-        String[] address = "19/\"19/2A Debi Das Ghat Lane, Chawk Bazar Dhaka Dhaka 1211 Bangladesh\"2A Gulshan-2 Dhaka 1211 Dhaka bibhag Bangladesh".split(" ");
+        String[] address = "19/2A Debi Das Ghat Lane, Chawk Bazar Dhaka Dhaka 1211 Bangladesh 2A Gulshan-2 Dhaka 1211 Dhaka bibhag Bangladesh".split(" ");
         int addressWidth = 40;
         int tempLength=0;
         String tempString = "";

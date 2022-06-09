@@ -26,6 +26,9 @@ public class InvoiceFromJson {
         JSONObject jsonDocument = (JSONObject) JSONValue.parse(new FileReader(file));
         invoice =  new Invoice();
         setInvoiceFromJson(jsonDocument);
+
+        invoice.getInvoiceItems().forEach(System.out::println);
+        System.out.println(invoice.getInvoiceItems().size());
         return this.invoice;
     }
 
