@@ -14,7 +14,7 @@ public class Invoice {
     private Long id;
     private String invoiceTitle;
     private String invoiceNo;
-    private LocalDate invoiceDate;
+    private LocalDate invoiceDate ;
     private LocalDate invoiceDueDate;
     private String chequeNumber;
     private String notes;

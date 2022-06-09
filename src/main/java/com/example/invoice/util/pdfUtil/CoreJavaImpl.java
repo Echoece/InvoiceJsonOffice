@@ -8,8 +8,12 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.pdmodel.graphics.state.RenderingMode;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
@@ -23,11 +27,14 @@ import java.util.List;
 @Component
 public class CoreJavaImpl {
     private InvoiceFromJson invoiceFromJson;
-
+    //@EventListener(ApplicationReadyEvent.class)
     public void create() throws IOException {
         // initial setup for pdf and getting data from json file,
         Invoice invoice = invoiceFromJson.getInvoice(new File("src/main/resources/json/Invoice.json"));
+
         PDDocument document = new PDDocument();
+        PDType0Font roboto = PDType0Font.load(document,new File("src/main/resources/fonts/roboto/Roboto-Light.ttf"));
+        PDType0Font roboto_BOLD = PDType0Font.load(document,new File("src/main/resources/fonts/roboto/Roboto-Medium.ttf"));
 
         PDPage page = new PDPage();
         document.addPage(page);
@@ -38,79 +45,98 @@ public class CoreJavaImpl {
         float baseYPosition = page.getCropBox().getHeight()-54;
         int baseLineGap= 11;
 
-
+        /*----------------------------------------------------------------------------------------------------------------*/
         // customer details (top-left side)
-        // TODO: need to clarify BDX and Tax ID field, where it is coming from?
-        writeText(contentStream,"BDX", PDType1Font.HELVETICA_BOLD,12, 55,baseYPosition , RenderingMode.FILL);
-        writeText(contentStream, "Company ID : "+ invoice.getCustomer().getCompanyId(),PDType1Font.HELVETICA,9, 55, baseYPosition-baseLineGap,RenderingMode.FILL);
-        writeText(contentStream, "Tax ID : 986432",PDType1Font.HELVETICA,9, 55, baseYPosition- (2*baseLineGap),RenderingMode.FILL);
+        // TODO: need to clarify BDX and Tax ID field, where it is coming from? also null check on customer
+        writeText(contentStream,"BDX", roboto_BOLD,12, 55,baseYPosition );
+        writeText(contentStream, "Company ID : "+ invoice.getCustomer().getCompanyId(),roboto,9, 55, baseYPosition-baseLineGap);
+        writeText(contentStream, "Tax ID : 986432",roboto,9, 55, baseYPosition- (2*baseLineGap));
 
-
-        List<String> addressLines = formattedAddress(invoice.getShippingAddress());
+        List<String> addressLines = formattedAddress(invoice.getShippingAddress(),35);
         int tempMultiplier =3;
         for (String line : addressLines){
-            writeText(contentStream, line, PDType1Font.HELVETICA, 9,55, baseYPosition-(tempMultiplier*baseLineGap),RenderingMode.FILL);
+            writeText(contentStream, line, roboto, 9,55, baseYPosition-(tempMultiplier*baseLineGap));
             tempMultiplier++;
         }
-
-        // Invoice details (top-right side)
-        writeText(contentStream,"INVOICE",PDType1Font.HELVETICA, 24,450, baseYPosition, RenderingMode.FILL);
-        writeText(contentStream, "# INV-" + invoice.getInvoiceNo(), PDType1Font.HELVETICA, 10,450, baseYPosition-(2*baseLineGap), RenderingMode.FILL);
-
-        writeText(contentStream, "Balance Due", PDType1Font.HELVETICA_BOLD, 8,450, baseYPosition-(5*baseLineGap), RenderingMode.FILL);
-        writeText(contentStream, "BDT "+ invoice.getTotal(), PDType1Font.HELVETICA_BOLD, 12,450, baseYPosition-(7*baseLineGap), RenderingMode.FILL);
 
         // Bill to (below the customer details on the top-left side)
-        writeText(contentStream, "Bill To",PDType1Font.HELVETICA,11, 55,baseYPosition - (9*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream, "John Doe",PDType1Font.HELVETICA_BOLD,9, 55,baseYPosition - (10*baseLineGap),RenderingMode.FILL);
+        writeText(contentStream, "Bill To",roboto,11, 55,baseYPosition - (9*baseLineGap));
+        writeText(contentStream, "John Doe",roboto_BOLD,9, 55,baseYPosition - (10*baseLineGap));
 
-        addressLines = formattedAddress(invoice.getBillingAddress());
+        addressLines = formattedAddress(invoice.getBillingAddress(), 35);
         tempMultiplier =11;
         for (String line : addressLines){
-            writeText(contentStream, line, PDType1Font.HELVETICA, 9,55, baseYPosition-(tempMultiplier*baseLineGap),RenderingMode.FILL);
+            writeText(contentStream, line, roboto, 9,55, baseYPosition - (tempMultiplier*baseLineGap));
             tempMultiplier++;
         }
 
-        //subject
-        writeText(contentStream, "Subject :",PDType1Font.HELVETICA,9,55,baseYPosition - (18*baseLineGap),RenderingMode.FILL);
-        // TODO: need to clarify about the requirements of the subject in case multiple items
-        String firstProductName =invoice.getInvoiceItems().stream().findFirst().orElseThrow().getProductName();
-        writeText(contentStream, "Invoice of purchasing " + firstProductName,PDType1Font.HELVETICA,9,55,baseYPosition - (19*baseLineGap),RenderingMode.FILL);
-
+        /*----------------------------------------------------------------------------------------------------------------*/
+        // Invoice details (top-right side)
         // invoice dates and terms (below invoice details on the top-right side)
-        writeText(contentStream, "Invoice Date :       " + invoice.getInvoiceDate(),PDType1Font.HELVETICA,11,400,baseYPosition - (11*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream, "Terms :                 " + "Due on Receipt",PDType1Font.HELVETICA,11,400,baseYPosition - (13*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream, "Due Date :            " + invoice.getInvoiceDueDate(),PDType1Font.HELVETICA,11,400,baseYPosition - (15*baseLineGap),RenderingMode.FILL);
+        int invoiceDetailsEndXOffSet = 430;
+        int invoiceDetailsValueEndXOffset = 570;
+
+        writeText(contentStream,"INVOICE",roboto_BOLD, 24,getXOffsetForRightAlignedText(roboto_BOLD,24,"INVOICE", invoiceDetailsValueEndXOffset), baseYPosition);
+        writeText(contentStream, "# INV-" + invoice.getInvoiceNo(), roboto_BOLD, 10,getXOffsetForRightAlignedText(roboto_BOLD,10,"# INV-"+ invoice.getInvoiceNo(), invoiceDetailsValueEndXOffset), baseYPosition-(2*baseLineGap));
+        writeText(contentStream, "Balance Due", roboto_BOLD, 8,getXOffsetForRightAlignedText(roboto_BOLD,8,"Balance Due", invoiceDetailsValueEndXOffset), baseYPosition-(5*baseLineGap));
+        writeText(contentStream, "BDT "+ invoice.getTotal(), roboto_BOLD, 12,getXOffsetForRightAlignedText(roboto_BOLD,12,"BDT "+ invoice.getTotal(), invoiceDetailsValueEndXOffset), baseYPosition-(6*baseLineGap));
+
+
+        writeText(contentStream, "Invoice Date :" ,roboto,11,getXOffsetForRightAlignedText(roboto, 11,"Invoice Date :",invoiceDetailsEndXOffSet),baseYPosition - (11*baseLineGap));
+        writeText(contentStream, String.valueOf(invoice.getInvoiceDate()),roboto,11,getXOffsetForRightAlignedText(roboto, 11, String.valueOf(invoice.getInvoiceDate()),invoiceDetailsValueEndXOffset),baseYPosition - (11*baseLineGap));
+
+        writeText(contentStream, "Terms :",roboto,11,getXOffsetForRightAlignedText(roboto, 11,"Terms :",invoiceDetailsEndXOffSet),baseYPosition - (13*baseLineGap));
+        writeText(contentStream, "Due on Receipt",roboto,11,getXOffsetForRightAlignedText(roboto, 11, "Due on Receipt",invoiceDetailsValueEndXOffset),baseYPosition - (13*baseLineGap));
+
+        writeText(contentStream, "Due Date :" ,roboto,11,getXOffsetForRightAlignedText(roboto, 11,"Due Date :",invoiceDetailsEndXOffSet),baseYPosition - (15*baseLineGap));
+        writeText(contentStream, String.valueOf(invoice.getInvoiceDueDate()),roboto,11,getXOffsetForRightAlignedText(roboto, 11, String.valueOf(invoice.getInvoiceDueDate()),invoiceDetailsValueEndXOffset),baseYPosition - (15*baseLineGap));
+
+        /*----------------------------------------------------------------------------------------------------------------*/
+        //subject
+        writeText(contentStream, "Subject :",roboto,9,55,baseYPosition - (18*baseLineGap));
+        // TODO: need to clarify about the requirements of the subject in case multiple items
+        String firstProductName =invoice.getInvoiceItems().stream().findFirst().orElse(new InvoiceItems()).getProductName();
+        writeText(contentStream, "Invoice of purchase " + firstProductName,roboto,9,55,baseYPosition - (19*baseLineGap));
 
         // invoice item menu header
-        contentStream.addRect(55,baseYPosition-(22*baseLineGap),530,20);
-        contentStream.setNonStrokingColor(Color.BLACK);
+        contentStream.addRect(55,baseYPosition-(22*baseLineGap),540,25);
+        contentStream.setNonStrokingColor(60/255f,60/255f,60/255f);
         contentStream.fill();
-        writeText(contentStream, "#",PDType1Font.HELVETICA, Color.white,10,60,baseYPosition - (22*baseLineGap)+7,RenderingMode.FILL);
-        writeText(contentStream, "Item & Description",PDType1Font.HELVETICA, Color.white,10,100,baseYPosition - (22*baseLineGap)+7,RenderingMode.FILL);
-        writeText(contentStream, "Qty",PDType1Font.HELVETICA, Color.white,10,400,baseYPosition - (22*baseLineGap)+7,RenderingMode.FILL);
-        writeText(contentStream, "Rate",PDType1Font.HELVETICA, Color.white,10,470,baseYPosition - (22*baseLineGap)+7,RenderingMode.FILL);
-        writeText(contentStream, "Amount",PDType1Font.HELVETICA, Color.white,10,540,baseYPosition - (22*baseLineGap)+7,RenderingMode.FILL);
+        writeText(contentStream, "#",roboto, Color.white,10,60,baseYPosition - (22*baseLineGap)+9);
+        writeText(contentStream, "Item & Description",roboto, Color.white,10,100,baseYPosition - (22*baseLineGap)+9);
+        writeText(contentStream, "Qty",roboto, Color.white,10,400,baseYPosition - (22*baseLineGap)+9);
+        writeText(contentStream, "Rate",roboto, Color.white,10,470,baseYPosition - (22*baseLineGap)+9);
+        writeText(contentStream, "Amount",roboto, Color.white,10,540,baseYPosition - (22*baseLineGap)+9);
+
         // invoice items iteration,
+        // TODO: need to check for null pointer exception for invoiceItems
         int i= 1;
         int itemlistBaseY = 23;
-        Float yPos = 0f;
         Iterator<InvoiceItems> itr =  invoice.getInvoiceItems().iterator();
-        while (itr.hasNext() ){
+
+
+        int rateEndXOffset = 490;
+        int amountEndXOffset = 574;
+        int quantityEndXOffset = 415;
+
+        while (itr.hasNext() && i<7){
             InvoiceItems item = itr.next();
             try {
-                yPos =baseYPosition - (itemlistBaseY * baseLineGap) - 10;
+                Float yPos =baseYPosition - (itemlistBaseY * baseLineGap) - 10;
 
-                writeText(contentStream, Integer.toString(i),PDType1Font.HELVETICA, Color.black,9,60, yPos,RenderingMode.FILL);
-                writeText(contentStream, item.getProductName(),PDType1Font.HELVETICA_BOLD, Color.black,9,100, yPos,RenderingMode.FILL);
-                writeText(contentStream, item.getProductDescription(),PDType1Font.HELVETICA, Color.black,9,100, yPos- 10,RenderingMode.FILL);
-                writeText(contentStream, Long.toString(item.getQuantity()),PDType1Font.HELVETICA, Color.black,9,400, yPos,RenderingMode.FILL);
-                writeText(contentStream, "pcs",PDType1Font.HELVETICA, Color.black,9,400, yPos -10,RenderingMode.FILL);
-                writeText(contentStream, Long.toString(item.getUnitPrice()),PDType1Font.HELVETICA, Color.black,9,470, yPos,RenderingMode.FILL);
-                writeText(contentStream, Long.toString(item.getItemSubtotal()),PDType1Font.HELVETICA, Color.black,9,540, yPos,RenderingMode.FILL);
+                writeText(contentStream, Integer.toString(i),roboto, Color.black,9,60, yPos);
+                writeText(contentStream, item.getProductName(),roboto_BOLD, Color.black,9,100, yPos+5);
+                // TODO: make a check for product description for being too long, i can probably trim it or just add more space.
+                //  It can overflow for too long text
+                writeText(contentStream, item.getProductDescription(),roboto, Color.black,9,100, yPos- 5);
+                writeText(contentStream, Long.toString(item.getQuantity()),roboto, Color.black,9,getXOffsetForRightAlignedText(roboto,9,Long.toString(item.getQuantity()), quantityEndXOffset), yPos+5);
+                writeText(contentStream, "pcs",roboto, Color.black,9,400, yPos -5);
+                writeText(contentStream, Long.toString(item.getUnitPrice()),roboto, Color.black,9,getXOffsetForRightAlignedText(roboto,9,Long.toString(item.getUnitPrice()),rateEndXOffset), yPos);
+                writeText(contentStream, Long.toString(item.getItemSubtotal()),roboto, Color.black,9,getXOffsetForRightAlignedText(roboto,9,Long.toString(item.getItemSubtotal()),amountEndXOffset), yPos);
 
                 contentStream.moveTo(60, yPos-15);
                 contentStream.lineTo(580, yPos -15);
+                contentStream.setStrokingColor(150/255f,150/255f,150/255f);
                 contentStream.stroke();
 
                 i++;
@@ -129,8 +155,12 @@ public class CoreJavaImpl {
             }
         }
 
+        /*----------------------------------------------------------------------------------------------------------------*/
         // invoice total
-        float startPosition = baseYPosition - (itemlistBaseY*baseLineGap);
+        float startPosition = baseYPosition - (itemlistBaseY*baseLineGap)- 5;
+        int invoiceTotalEndXOffset = 470;
+        int invoiceTotalValueEndXOffset = amountEndXOffset;
+
         if(startPosition < 100 ){
             PDPage nextPage = new PDPage();
             document.addPage(nextPage);
@@ -138,16 +168,30 @@ public class CoreJavaImpl {
             contentStream = new PDPageContentStream(document,nextPage);
             startPosition = nextPage.getCropBox().getHeight()-54;
         }
-        writeText(contentStream,"Sub Total:               "+ invoice.getSubtotal(),PDType1Font.HELVETICA,9,400,startPosition,RenderingMode.FILL);
-        writeText(contentStream, "Total:                       " + invoice.getTotal(),PDType1Font.HELVETICA,9,400,startPosition - (2*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream, "Discount:                 "+invoice.getDiscount(),PDType1Font.HELVETICA, 9, 400,startPosition-(4*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream, "Shipping Charge:   100.00",PDType1Font.HELVETICA, 9, 400,startPosition-(6*baseLineGap),RenderingMode.FILL);
 
-        contentStream.addRect(300,startPosition- (9*baseLineGap),300,25);
-        contentStream.setNonStrokingColor(Color.lightGray);
+        writeText(contentStream, "Sub Total",roboto,9,getXOffsetForRightAlignedText(roboto,9,"Sub Total",invoiceTotalEndXOffset),startPosition);
+        writeText(contentStream, String.valueOf(invoice.getSubtotal()),roboto,9,getXOffsetForRightAlignedText(roboto,9,String.valueOf(invoice.getSubtotal()),invoiceTotalValueEndXOffset),startPosition);
+
+        writeText(contentStream, "Shipping Charge" ,roboto,9,getXOffsetForRightAlignedText(roboto,9,"Shipping Charge",invoiceTotalEndXOffset),startPosition - (2*baseLineGap));
+        writeText(contentStream, "100.00",roboto,9,getXOffsetForRightAlignedText(roboto,9,"100.00",invoiceTotalValueEndXOffset),startPosition - (2*baseLineGap));
+
+        writeText(contentStream, "Tax (15%)" ,roboto,9,getXOffsetForRightAlignedText(roboto,9,"Tax (15%)",invoiceTotalEndXOffset),startPosition - (4*baseLineGap));
+        writeText(contentStream, String.valueOf(invoice.getTaxAmount()),roboto,9,getXOffsetForRightAlignedText(roboto,9,String.valueOf(invoice.getTaxAmount()),invoiceTotalValueEndXOffset),startPosition - (4*baseLineGap));
+
+        writeText(contentStream, "Discount",roboto, 9, getXOffsetForRightAlignedText(roboto,9,"Discount",invoiceTotalEndXOffset),startPosition-(6*baseLineGap));
+        writeText(contentStream, String.valueOf(invoice.getDiscount()),roboto, 9, getXOffsetForRightAlignedText(roboto,9,String.valueOf(invoice.getDiscount()),invoiceTotalValueEndXOffset),startPosition-(6*baseLineGap));
+
+        writeText(contentStream, "Total",roboto_BOLD, 9, getXOffsetForRightAlignedText(roboto_BOLD,9,"Total",invoiceTotalEndXOffset),startPosition-(8*baseLineGap));
+        writeText(contentStream, String.format("%,.2f",invoice.getTotal()),roboto_BOLD, 9, getXOffsetForRightAlignedText(roboto_BOLD,9,String.format("%,.2f",invoice.getTotal()),invoiceTotalValueEndXOffset),startPosition-(8*baseLineGap));
+
+
+        contentStream.addRect(295,startPosition- (11*baseLineGap),300,25);
+        contentStream.setNonStrokingColor(230/255f,230/255f,230/255f);
         contentStream.fill();
-        writeText(contentStream,"Balance Due:          "+ String.format("%,.2f",430000.00f),PDType1Font.HELVETICA,Color.BLACK,9,400,startPosition - (9*baseLineGap)+9,RenderingMode.FILL);
+        writeText(contentStream,"Balance Due",roboto_BOLD,Color.BLACK,9,getXOffsetForRightAlignedText(roboto_BOLD,9,"Balance Due",invoiceTotalEndXOffset),startPosition - (11*baseLineGap)+9);
+        writeText(contentStream,String.format("%,.2f",invoice.getDues()),roboto_BOLD,Color.BLACK,9,getXOffsetForRightAlignedText(roboto_BOLD,9,String.format("%,.2f",invoice.getDues()),invoiceTotalValueEndXOffset),startPosition - (11*baseLineGap)+9);
 
+        /*----------------------------------------------------------------------------------------------------------------*/
 
         // final note
         if(startPosition - (10*baseLineGap) < 120 ){
@@ -155,50 +199,51 @@ public class CoreJavaImpl {
             document.addPage(nextPage);
             contentStream.close();
             contentStream = new PDPageContentStream(document,nextPage);
-            startPosition = nextPage.getCropBox().getHeight()-54;
-        }
-        writeText(contentStream,"Notes", PDType1Font.HELVETICA,10,55,startPosition - (14*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream,"Thanks for your business", PDType1Font.HELVETICA,8,55,startPosition - (15*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream,"Terms & Conditions", PDType1Font.HELVETICA,10,55,startPosition - (17*baseLineGap),RenderingMode.FILL);
-        writeText(contentStream,"Company is not responsible if the product is damaged during transportation", PDType1Font.HELVETICA,8,55,startPosition - (18*baseLineGap),RenderingMode.FILL);
+            startPosition = nextPage.getCropBox().getHeight()-530;
+        } else
+            startPosition = page.getCropBox().getHeight() - 530;
+
+        writeText(contentStream,"Notes", roboto,10,60,startPosition - (14*baseLineGap));
+        writeText(contentStream,"Thanks for your business", roboto,8,60,startPosition - (15*baseLineGap));
+        writeText(contentStream,"Terms & Conditions", roboto,10,60,startPosition - (17*baseLineGap));
+        writeText(contentStream,"Company is not responsible if the product is damaged during transportation", roboto,8,60,startPosition - (18*baseLineGap));
 
         // final line at the end of page
         contentStream.moveTo(60, 30);
-        contentStream.lineTo(580,  30);
+        contentStream.lineTo(560,  30);
         contentStream.stroke();
-        System.out.println(page.getCropBox());
 
+        /*----------------------------------------------------------------------------------------------------------------*/
+        System.out.println(page.getCropBox());
         contentStream.close();
         document.save("test.pdf");
         document.close();
     }
 
     private static void writeText(PDPageContentStream contentStream, String text, PDFont font,
-                          int size, float xPos, float yPos, RenderingMode renderMode) throws IOException {
+                          int size, float xPos, float yPos) throws IOException {
         contentStream.beginText();
         contentStream.setFont(font, size);
         contentStream.newLineAtOffset(xPos, yPos);
-        //contentStream.setRenderingMode(renderMode);
         contentStream.showText(text);
         contentStream.endText();
     }
     private static void writeText(PDPageContentStream contentStream, String text, PDFont font, Color color,
-                          int size, float xPos, float yPos, RenderingMode renderMode) throws IOException {
+                          int size, float xPos, float yPos) throws IOException {
         contentStream.beginText();
         contentStream.setFont(font, size);
         contentStream.newLineAtOffset(xPos, yPos);
         contentStream.setNonStrokingColor(color);
-        //contentStream.setRenderingMode(renderMode);
         contentStream.showText(text);
         contentStream.endText();
     }
 
-    private static List<String> formattedAddress(String adressToFormat){
+    // utility method to get formatted address
+    private static List<String> formattedAddress(String addressToFormat,int addressWidth){
         // addressToFormat the address into words -> add them back into a List of strings, each string in the list will represent a line having width of less than 30.
         List<String> lines = new ArrayList<>();
 
-        String[] address = adressToFormat.split(" ");
-        int addressWidth = 30; // to limit the address per line
+        String[] address = addressToFormat.split(" ");
         int tempLength=0;
         String tempString = "";
 
@@ -218,7 +263,12 @@ public class CoreJavaImpl {
         return lines;
     }
 
-    private static float getTextWidth(PDType1Font font, int fontSize, String text) throws IOException {
+    // utility methods for getting the starting X offset for right aligned items.
+    private static float getXOffsetForRightAlignedText(PDType0Font font, int fontSize, String text, float endX ) throws IOException {
+        float width = getTextWidth(font,fontSize, text);
+        return (endX- width);
+    }
+    private static float getTextWidth(PDType0Font font, int fontSize, String text) throws IOException {
         return (font.getStringWidth(text) / 1000.0f) * fontSize;
     }
 }

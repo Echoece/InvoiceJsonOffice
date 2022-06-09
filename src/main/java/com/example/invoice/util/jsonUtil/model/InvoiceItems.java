@@ -34,6 +34,9 @@ public class InvoiceItems {
     private Invoice invoice;
     private List<String> taxCodes = new ArrayList<>();
 
+    public InvoiceItems(){
+        productName = "";
+    }
     public InvoiceItems(JSONObject obj){
         if(obj.containsKey("id"))
             this.setId((Long) obj.get("id"));
