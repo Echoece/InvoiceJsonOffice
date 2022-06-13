@@ -40,5 +40,4 @@ public class Invoice {
     private Customer customer;
     private String job;
     private String metaInformation;
-
 }

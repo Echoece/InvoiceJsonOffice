@@ -29,8 +29,8 @@ public class InvoiceItems {
     private Long createdBy;
 
     private Instant created;
-    private Instant updated;
     private Set<InvoiceItemTax> taxedInvoiceItems = new HashSet<>();
+    private Instant updated;
     private Invoice invoice;
     private List<String> taxCodes = new ArrayList<>();
 
