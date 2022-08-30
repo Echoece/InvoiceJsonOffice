@@ -30,14 +30,17 @@ import java.util.List;
 @Component
 public class CoreJavaImpl {
     private InvoiceFromJson invoiceFromJson;
-    //@EventListener(ApplicationReadyEvent.class)
     public void create() throws IOException {
         // initial setup,
         Invoice invoice = invoiceFromJson.getInvoice(new File("src/main/resources/json/Invoice.json"));
-
         PDDocument document = new PDDocument();
-        PDType0Font roboto = PDType0Font.load(document,new File("src/main/resources/fonts/roboto/Roboto-Light.ttf"));
-        PDType0Font roboto_BOLD = PDType0Font.load(document,new File("src/main/resources/fonts/roboto/Roboto-Medium.ttf"));
+
+        PDType1Font roboto = PDType1Font.HELVETICA;
+        PDType1Font roboto_BOLD = PDType1Font.HELVETICA_BOLD;
+
+        // penny perfect uses roboto fonts
+        //PDType0Font roboto = PDType0Font.load(document,new File("src/main/resources/fonts/roboto/Roboto-Light.ttf"));
+        //PDType0Font roboto_BOLD = PDType0Font.load(document,new File("src/main/resources/fonts/roboto/Roboto-Medium.ttf"));
 
         PDPage page = new PDPage();
         document.addPage(page);
@@ -50,10 +53,13 @@ public class CoreJavaImpl {
 
         /*----------------------------------------------------------------------------------------------------------------*/
         // customer details (top-left side)
-        // TODO: need to clarify BDX and Tax ID field, where it is coming from? also null check on customer
+        // TODO: need to clarify BDX and Tax ID field, where it is coming from?
+        //  : the address seems to be stored in the address table
+        //  : tax code is confusing, since there can be many
         writeText(contentStream,"BDX", roboto_BOLD,12, 55,baseYPosition );
         String companyId = "";
-        if(invoice.getCustomer()!=null && invoice.getCustomer().getCompanyId()!=null) companyId = invoice.getCustomer().getCompanyId().toString();
+        if(invoice.getCustomer()!=null && invoice.getCustomer().getCompanyId()!=null)
+            companyId = invoice.getCustomer().getCompanyId().toString();
         writeText(contentStream, "Company ID : "+ companyId,roboto,9, 55, baseYPosition-baseLineGap);
         writeText(contentStream, "Tax ID : 986432",roboto,9, 55, baseYPosition- (2*baseLineGap));
 
@@ -118,8 +124,7 @@ public class CoreJavaImpl {
         int i= 1;
         int itemlistBaseY = 23;
         Iterator<InvoiceItems> itr =  invoice.getInvoiceItems().iterator();
-
-
+        
         int rateEndXOffset = 490;
         int amountEndXOffset = 574;
         int quantityEndXOffset = 415;
@@ -225,7 +230,7 @@ public class CoreJavaImpl {
         document.close();
 
         /*
-                // for penny perfect app it returns byte array. we can use the other overload of the save() method which takes and outputstream argument
+                // for penny perfect app it returns byte array. we can use the other overload of the save() method which takes an outputStream argument
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 document.save(byteArrayOutputStream);
                 document.close();
@@ -253,7 +258,8 @@ public class CoreJavaImpl {
 
     // utility method to get formatted address
     private static List<String> formattedAddress(String addressToFormat,int addressWidth){
-        // addressToFormat the address into words -> add them back into a List of strings, each string in the list will represent a line having width of less than 30.
+        // addressToFormat the address into words -> add them back into a List of strings, each string in the list will represent
+        // a line having width of less than the specified addressWidth.
         List<String> lines = new ArrayList<>();
 
         String[] address = addressToFormat.split(" ");
@@ -277,11 +283,13 @@ public class CoreJavaImpl {
     }
 
     // utility methods for getting the starting X offset for right aligned items.
-    private static float getXOffsetForRightAlignedText(PDType0Font font, int fontSize, String text, float endX ) throws IOException {
+    private static float getXOffsetForRightAlignedText(PDType1Font font, int fontSize, String text, float endX ) throws IOException {
         float width = getTextWidth(font,fontSize, text);
         return (endX- width);
     }
-    private static float getTextWidth(PDType0Font font, int fontSize, String text) throws IOException {
+    private static float getTextWidth(PDType1Font font, int fontSize, String text) throws IOException {
         return (font.getStringWidth(text) / 1000.0f) * fontSize;
     }
 }
+
+
