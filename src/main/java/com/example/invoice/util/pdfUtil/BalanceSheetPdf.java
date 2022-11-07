@@ -10,6 +10,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class BalanceSheetPdf {
     PDPageContentStream contentStream;
@@ -17,6 +18,8 @@ public class BalanceSheetPdf {
         PDDocument document = new PDDocument();
         PDPage page = new PDPage();
         document.addPage(page);
+
+        Map<String, Double> values = Map.of("Fixed assets",2000.00d,"HST Receivable", 30000.00d,"total Assets", 43000.00d);
 
         contentStream = new PDPageContentStream(document,page);
         contentStream.setNonStrokingColor(Color.BLACK);
@@ -39,6 +42,7 @@ public class BalanceSheetPdf {
         writeText("BALANCE SHEET", font, Color.black,9, 70, baseYPosition - ( 5.5f * baseLineGap));
         writeText("Aug 30, 2022", font, Color.black,9, 70, baseYPosition - ( 7 * baseLineGap));
 
+
         writeText("ASSETS", font, 9, 70, baseYPosition - ( 11 * baseLineGap) );
         writeText("23000.00", font, Color.black, 9, 500, baseYPosition - ( 11 * baseLineGap) );
         contentStream.moveTo(60,  baseYPosition - (11.5f * baseLineGap));
@@ -60,20 +64,29 @@ public class BalanceSheetPdf {
         contentStream.fill();
         writeText("ASSETS", font, Color.black ,11, 70, baseYPosition - (22 * baseLineGap) + 10);
 
-        writeText("Fixed Asset", font, 10, 70, baseYPosition - ( 24 * baseLineGap) );
-        writeText("23000.00", font, Color.black, 10, 500, baseYPosition - ( 24 * baseLineGap) );
-        contentStream.moveTo(60,  baseYPosition - (24.5f * baseLineGap));
-        contentStream.lineTo(580,  baseYPosition- (24.5f * baseLineGap));
-        contentStream.setStrokingColor(206 / 255f, 206 / 255f, 206 / 255f);
-        contentStream.stroke();
-        writeText("HST Receivable", font, Color.black, 10, 70, baseYPosition - (26 * baseLineGap));
-        writeText("23000.00", font, Color.black, 10, 500, baseYPosition - (26 * baseLineGap));
-        contentStream.moveTo(60,  baseYPosition - (26.5f * baseLineGap));
-        contentStream.lineTo(580,  baseYPosition- (26.5f * baseLineGap));
-        contentStream.setStrokingColor(206 / 255f, 206 / 255f, 206 / 255f);
-        contentStream.stroke();
-        writeText("Bank Account", font, Color.black, 10, 70, baseYPosition - (28 * baseLineGap));
-        writeText("23000.00", font, Color.black, 10, 500, baseYPosition - (28 * baseLineGap));
+        final int[] i = {0};
+        values.forEach( (key, value) ->
+        {
+            try {
+                writeText(key, font, 10, 70, baseYPosition - ( 24 * baseLineGap) );
+                writeText(value.toString(), font, Color.black, 10, 500, baseYPosition - ( 24 * baseLineGap) );
+                contentStream.moveTo(60,  baseYPosition - (24.5f * baseLineGap));
+                contentStream.lineTo(580,  baseYPosition- (24.5f * baseLineGap));
+                contentStream.setStrokingColor(206 / 255f, 206 / 255f, 206 / 255f);
+                contentStream.stroke();
+                writeText("HST Receivable", font, Color.black, 10, 70, baseYPosition - (26 * baseLineGap));
+                writeText("23000.00", font, Color.black, 10, 500, baseYPosition - (26 * baseLineGap));
+                contentStream.moveTo(60,  baseYPosition - (26.5f * baseLineGap));
+                contentStream.lineTo(580,  baseYPosition- (26.5f * baseLineGap));
+                contentStream.setStrokingColor(206 / 255f, 206 / 255f, 206 / 255f);
+                contentStream.stroke();
+                writeText("Bank Account", font, Color.black, 10, 70, baseYPosition - (28 * baseLineGap));
+                writeText("23000.00", font, Color.black, 10, 500, baseYPosition - (28 * baseLineGap));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
 
         writeText("Total Assets", font_bold, Color.black, 10, 70, baseYPosition - (31 * baseLineGap));
         writeText("23000.00", font_bold, Color.black, 10, 500, baseYPosition - (31 * baseLineGap));
@@ -83,7 +96,7 @@ public class BalanceSheetPdf {
         contentStream.addRect(44, baseYPosition - (38 * baseLineGap), 520, 30);
         contentStream.setNonStrokingColor(242 / 255f, 242 / 255f, 242 / 255f);
         contentStream.fill();
-        writeText("LIABILITES", font, Color.black ,11, 70, baseYPosition - (38 * baseLineGap) + 10);
+        writeText("LIABILITIES", font, Color.black ,11, 70, baseYPosition - (38 * baseLineGap) + 10);
 
         writeText("Fixed Asset", font, 10, 70, baseYPosition - ( 41 * baseLineGap) );
         writeText("23000.00", font, Color.black, 10, 500, baseYPosition - ( 41 * baseLineGap) );
@@ -100,7 +113,7 @@ public class BalanceSheetPdf {
         writeText("Bank Account", font, Color.black, 10, 70, baseYPosition - (45 * baseLineGap));
         writeText("23000.00", font, Color.black, 10, 500, baseYPosition - (45 * baseLineGap));
 
-        writeText("Total Liabilites", font_bold, Color.black, 10, 70, baseYPosition - (48 * baseLineGap));
+        writeText("Total Liabilities", font_bold, Color.black, 10, 70, baseYPosition - (48 * baseLineGap));
         writeText("23000.00", font_bold, Color.black, 10, 500, baseYPosition - (48 * baseLineGap));
 
 
