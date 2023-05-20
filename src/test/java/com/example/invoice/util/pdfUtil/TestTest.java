@@ -8,11 +8,5 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class TestTest {
-    private Test test = new Test();
-
-    @org.junit.jupiter.api.Test
-    public void testing() throws IOException {
-        test.test();
-    }
 
 }

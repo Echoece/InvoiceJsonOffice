@@ -111,7 +111,7 @@ public class InvoiceFromJson {
 
     }
 
-    // getting the set of InvoiceItems from json, TODO: make generic to get JSONArray
+    // getting the set of InvoiceItems from json, TODO: make generic
     private Set<InvoiceItems> getInvoiceItems(JSONObject doc){
         Set<InvoiceItems> items = new HashSet<>();
         JSONArray invoiceItemArray =(JSONArray) doc.get("invoice_items");
